@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Our Shop - Urban Sofas{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Category Tree Hover/Active State */
+    .category-tree .list-group-item { border: none; padding-top: 0.4rem; padding-bottom: 0.4rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; display: flex; align-items: center; font-size: 0.9rem; }
+    .category-tree .list-group-item[style*="padding-left"] { /* Base padding handled by rules below */ }
+    .category-tree .category-item.level-0 { padding-left: 0.5rem !important; }
+    .category-tree .category-item.level-1 { padding-left: 1.75rem !important; }
+    .category-tree .category-item.level-2 { padding-left: 2.75rem !important; }
+    .category-tree .category-item.level-3 { padding-left: 3.75rem !important; }
+    .category-tree .category-indent { display: inline-block; width: 1.5em; text-align: center; }
+    .category-tree a.list-group-item:not(.active):hover { background-color: #e9ecef !important; color: #000000 !important; border-radius: 0.375rem; }
+    .category-tree a.list-group-item.active, .category-tree a.list-group-item.active:hover { font-weight: 600; background-color: #000000 !important; border-color: #000000 !important; color: white !important; border-radius: 0.375rem; }
+    .category-tree .category-name.fw-semibold { font-weight: 600 !important; }
+
+    /* Card Image Styling */
+    .product-card .card-img-link { display: block; background-color: #ffffff; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius); overflow: hidden; height: 260px; }
+    .product-card .card-img-top { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Card Text Sizes */
+    .product-card .card-title { font-size: 1rem; margin-bottom: 0.25rem; }
+    .product-card .card-category { font-size: 0.75rem; margin-bottom: 0.5rem; }
+    .product-card .card-price { font-size: 0.75rem; font-weight: 650; color: var(--bs-success) !important; }
+    .product-card .btn { font-size: 0.8rem; padding: 0.3rem 0.75rem; }
+
+    /* Transform/Scale Styles */
+    .transform-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .transform-hover:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+    .scale-on-click { transition: transform 0.1s ease; }
+
+    /* --- ADDED CSS for Cart Bounce --- */
+    @keyframes cart-bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); } /* Scale up */
+    }
+    .cart-bounce-animation {
+      /* Apply to the icon's container link or icon itself */
+      animation: cart-bounce 0.4s ease-in-out;
+    }
+    /* --- END Cart Bounce CSS --- */
+
+</style>
+{# AOS CSS Link #}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-4 mt-md-5">
+
+    {# Off-Canvas Button #}
+    <div class="d-lg-none mb-3 text-end"> <button class="btn btn-primary rounded-pill" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas"> <i class="fas fa-filter me-1"></i> Filters & Categories </button> </div>
+
+    <div class="row">
+
+        {# Off-Canvas Sidebar #}
+        <div class="offcanvas offcanvas-start d-lg-none w-75" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel">
+             <div class="offcanvas-header border-bottom"> <h5 class="offcanvas-title" id="filterOffcanvasLabel"><i class="fas fa-filter me-2"></i>Filters & Categories</h5> <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button> </div>
+             <div class="offcanvas-body"> {% include 'menu/partials/sidebar_content.html' %} </div>
+        </div>
+
+        {# Desktop Sidebar #}
+        <div class="col-lg-3 d-none d-lg-block" data-aos="fade-right">
+             <div class="position-sticky" style="top: 100px;"> {% include 'menu/partials/sidebar_content.html' %} </div>
+        </div>
+
+        {# Main Content Area #}
+        <div class="col-lg-9">
+            {# Sorting options / Filter Context Display #}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                 <div> {% if selected_category_slug %}{% for cat in categories %}{% if cat.slug == selected_category_slug %}<span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis p-2 rounded-pill"> Showing: {{ cat.name }}</span>{% endif %}{% endfor %}{% else %}<span class="text-muted">Showing: All Products</span>{% endif %} </div>
+                 <form method="GET" action="{% url 'menu:menu_list' %}" id="sort-form" class="ms-auto">
+                      {% if selected_category_slug %}<input type="hidden" name="category" value="{{ selected_category_slug }}">{% endif %} {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %} {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %} {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                      <select name="sort_by" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()" aria-label="Sort menu items"> <option value="">Default Sort</option> <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option> <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option> <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Name: A to Z</option> <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Name: Z to A</option> </select>
+                 </form>
+            </div>
+
+            {# Menu Items Grid #}
+            <div class="row">
+                {% for item in menu_items %}
+                <div class="col-lg-4 col-md-6 mb-4"
+                     data-aos="fade-up" data-aos-duration="600"
+                     data-aos-delay="{% widthratio forloop.counter0 1 300 %}" data-aos-once="true">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 transform-hover product-card">
+                        {# Image Container Link #}
+                        <a href="{% url 'menu:menu_detail' item_id=item.pk %}" class="text-decoration-none card-img-link"> {% if item.image %} <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}"> {% else %} <img src="{% static 'images/placeholder_menu.png' %}" class="card-img-top" alt="Placeholder image"> {% endif %} </a>
+                        {# Card Body #}
+                        <div class="card-body text-center d-flex flex-column p-3">
+                             <h6 class="card-title"> <a href="{% url 'menu:menu_detail' item_id=item.pk %}" class="text-decoration-none text-dark stretched-link">{{ item.name }}</a> </h6>
+                             {% if item.category %} <small class="text-muted mb-2 card-category d-block"> <a href="{% url 'menu:menu_list' %}?category={{ item.category.slug }}" class="text-muted text-decoration-none">{{ item.category.name }}</a> </small> {% endif %}
+                             <p class="card-text mt-auto card-price text-dark">KES {{ item.price }}</p>
+                             <button type="button" data-item-id="{{ item.pk }}" data-url="{% url 'cart:add_item' item_id=item.pk %}" class="btn btn-sm btn-primary rounded-pill scale-on-click w-75 mt-2 add-to-cart-btn mx-auto d-block" style="z-index: 2; position: relative;"> Add to Order </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                 {# Empty State #}
+                 <div class="col-12"><div class="text-center py-5"><i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i><p class="text-center text-muted fs-5">No menu items match your current filters.</p><p class="text-center"><a href="{% url 'menu:menu_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Clear filters</a></p></div></div>
+                {% endfor %}
+            </div>{# Back to Home Link #}
+            <div class="text-center mt-4"><a href="{% url 'home' %}" class="btn btn-outline-dark rounded-pill px-4">Back to Home</a></div>
+            <br>
+
+        </div></div></div>{% endblock %}
+
+
+{% block extra_scripts %}
+{# Include AOS JS #}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    // Initialize AOS
+    AOS.init({ once: true });
+
+    // Button scale effect
+    document.querySelectorAll('.scale-on-click').forEach(btn => { /* ... same as before ... */
+        btn.addEventListener('mousedown', function() { btn.style.transform = 'scale(0.95)'; }); btn.addEventListener('mouseup', function() { btn.style.transform = 'scale(1)'; }); btn.addEventListener('mouseleave', function() { btn.style.transform = 'scale(1)'; });
+    });
+
+     // Add to Cart AJAX
+    function getCookie(name) { /* ... Get Cookie function ... */
+        let CV = null; if (document.cookie && document.cookie !== '') { const CS = document.cookie.split(';'); for (let i = 0; i < CS.length; i++) { const C = CS[i].trim(); if (C.substring(0, name.length + 1) === (name + '=')) { CV = decodeURIComponent(C.substring(name.length + 1)); break; } } } return CV;
+     }
+    const csrftoken = getCookie('csrftoken') || document.querySelector('input[name=csrfmiddlewaretoken]')?.value;
+
+     document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+         button.addEventListener('click', function(event) {
+             event.preventDefault(); event.stopPropagation();
+             const itemId = this.getAttribute('data-item-id');
+             const url = this.getAttribute('data-url');
+             if (!url || !csrftoken) { console.error("Missing URL/CSRF."); alert("Error."); return; }
+             console.log(`Adding item ${itemId} via AJAX to ${url}`);
+
+             const originalText = 'Add to Order';
+             this.disabled = true;
+             this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+
+             fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }, })
+             .then(response => { if (!response.ok) { return response.json().then(err => { throw new Error(err.message || `HTTP ${response.status}`); }).catch(() => { throw new Error(`HTTP ${response.status}`); }); } return response.json(); })
+             .then(data => {
+                 console.log('Success:', data);
+                 const cartCounter = document.getElementById('cart-count-badge');
+                 const cartIconLink = document.querySelector('a[title="View Cart"]'); // Find cart link in navbar
+
+                 // Update counter
+                 if (cartCounter && data.cart_item_count !== undefined) {
+                     cartCounter.textContent = data.cart_item_count;
+                     cartCounter.classList.toggle('d-none', data.cart_item_count <= 0);
+
+                     // --- ADDED: Trigger Cart Bounce ---
+                     if (cartIconLink && data.cart_item_count > 0) {
+                         cartIconLink.classList.add('cart-bounce-animation');
+                         // Remove class after animation duration (e.g., 400ms)
+                         setTimeout(() => {
+                             cartIconLink.classList.remove('cart-bounce-animation');
+                         }, 400); // Should match CSS animation duration
+                     }
+                     // --- END: Trigger Cart Bounce ---
+                 }
+
+                 // Update Button state (with color change)
+                 this.classList.remove('btn-dark');
+                 this.classList.add('btn-primary');
+                 this.textContent = 'Added!';
+                 setTimeout(() => {
+                     this.textContent = originalText;
+                     this.disabled = false;
+                     this.classList.remove('btn-primary'); // Ensure reset
+                     this.classList.add('btn-dark');
+                 }, 1500);
+             }).catch((error) => { // Reset button on error
+                 console.error('Error adding item:', error);
+                 alert(`Could not add item: ${error.message || 'Please try again.'}`);
+                 this.textContent = originalText;
+                 this.disabled = false;
+                 this.classList.remove('btn-primary'); // Ensure reset
+                 this.classList.add('btn-dark');
+             });
+         });
+     });
+</script>
+{% endblock %}

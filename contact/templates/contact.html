@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Contact Us - Urban Sofas{% endblock %}
+
+{% block content %}
+<style>
+    .contact-info-card .card-title { margin-bottom: 0.8rem; }
+    .contact-info-card p { margin-bottom: 0.5rem; color: #495057; }
+    .contact-info-card .fas { width: 1.5em; text-align: center; }
+    .map-link-img { border: 1px solid #dee2e6; border-radius: 0.25rem; }
+    .invalid-feedback { font-size: 0.875em; }
+    .form-text { font-size: 0.875em; }
+</style>
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Get In Touch</h1>
+        <p class="lead text-muted">We'd love to hear from you! Reach out with questions, feedback, or product inquiries.</p>
+    </div>
+
+    <div class="row g-lg-5 gy-4">
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm mb-4 contact-info-card">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-map-marker-alt fa-fw me-2 text-primary"></i>Our Location</h4>
+                    <p class="mb-1"><strong>Urban Sofas Showroom:</strong></p>
+                    <p class="mb-1">Northern Bypass, Nairobi, Kenya</p>
+                    <p class="mb-3">Phone: 0700 000 000</p>
+                    <a href="https://www.google.com/maps/place/your+actual+location+on+northern+bypass" target="_blank" rel="noopener noreferrer" title="View on Google Maps">
+                         
+                    </a>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4 contact-info-card">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-clock fa-fw me-2 text-primary"></i>Opening Hours</h4>
+                    <p class="mb-1"><strong>Mon - Sat:</strong> 8:00 AM - 6:00 PM</p>
+                    <p class="mb-0"><strong>Sun:</strong> 11:00 AM - 5:00 PM</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4 contact-info-card">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-phone fa-fw me-2 text-primary"></i>Call Us</h4>
+                    <p><a href="tel:+254700000000" class="text-decoration-none fs-5 link-dark">0700 000 000</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="p-4 p-md-5 bg-white rounded shadow-sm h-100">
+                <h3 class="mb-4 fw-semibold">Send Us a Message</h3>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if "contact_form" in message.tags %}
+                        <div class="alert {% if 'success' in message.tags %}alert-success{% elif 'error' in message.tags %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'contact:contact' %}">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger p-2 small">
+                             {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+                        </div>
+                   {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                            {% with aria_desc_id=field.id_for_label|stringformat:"s_helptext" %}
+                                {% render_field field class+="form-control" placeholder=field.label aria-describedby=aria_desc_id %}
+                            {% endwith %}
+                             {% if field.help_text %}
+                                 <small id="{{ field.id_for_label }}_helptext" class="form-text text-muted">{{ field.help_text|safe }}</small>
+                             {% endif %}
+                             {% if field.errors %}
+                                 <div class="invalid-feedback d-block">
+                                     {% for error in field.errors %}{{ error }}{% endfor %}
+                                 </div>
+                             {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 mt-3">
+                       <i class="fas fa-paper-plane me-2"></i>Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

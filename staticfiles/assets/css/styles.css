@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+
+:root {
+    --primary-color: #008080; /* Teal */
+    --secondary-color: #ff6347; /* Tomato */
+    --dark-color: #222;
+    --light-color: #f8f9fa;
+    --text-color: #444;
+    --white: #fff;
+}
+
+/* Reset Default Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Body Styling */
+body {
+    background-color: var(--light-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: var(--white);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.navbar-brand img {
+    height: 50px;
+}
+
+.navbar-nav .nav__item {
+    margin: 0 15px;
+}
+
+.navbar-nav .nav__item-link {
+    color: var(--dark-color);
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav__item-link:hover {
+    color: var(--primary-color);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+}
+
+.dropdown-item:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+/* Buttons */
+.btn__primary {
+    background: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn__primary:hover {
+    background: var(--secondary-color);
+    color: var(--white);
+}
+
+/* Shopping Cart Icon */
+.navbar .fa-shopping-cart {
+    color: var(--dark-color);
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.navbar .fa-shopping-cart:hover {
+    color: var(--primary-color);
+}
+
+/* Badge for Cart */
+.badge {
+    font-size: 12px;
+    padding: 3px 7px;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    right: -10px;
+}
+
+/* Footer Styling */
+.footer {
+    background: var(--dark-color);
+    color: var(--white);
+    padding: 40px 0;
+    text-align: center;
+}
+
+.footer h5 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.footer p {
+    font-size: 14px;
+    color: #bbb;
+}
+
+.footer a {
+    color: var(--white);
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--secondary-color);
+}
+
+/* Social Icons */
+.footer .fab {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.footer .fab:hover {
+    transform: scale(1.2);
+}
+
+/* ========================== */
+/* 🌐 RESPONSIVE MEDIA QUERIES */
+/* ========================== */
+
+/* Large Screens (Desktops) */
+@media (max-width: 1200px) {
+    .navbar-nav .nav__item {
+        margin: 0 10px;
+    }
+
+    .btn__primary {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Tablets (Medium Screens) */
+@media (max-width: 992px) {
+    .navbar {
+        padding: 10px 0;
+    }
+
+    .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .footer {
+        text-align: center;
+        padding: 30px 0;
+    }
+
+    .footer .col-md-4 {
+        margin-bottom: 20px;
+    }
+
+    .btn__primary {
+        padding: 10px 18px;
+    }
+}
+
+/* Mobile Devices (Small Screens) */
+@media (max-width: 768px) {
+    .navbar-toggler {
+        border: none;
+    }
+
+    .navbar-collapse {
+        text-align: center;
+        background: var(--white);
+        padding: 15px 0;
+    }
+
+    .navbar-nav .nav__item {
+        margin: 10px 0;
+    }
+
+    .navbar-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn__primary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .footer {
+        padding: 20px 0;
+    }
+}
+
+/* Extra Small Devices (Phones) */
+@media (max-width: 576px) {
+    .navbar-brand img {
+        height: 40px;
+    }
+
+    .btn__primary {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .footer {
+        font-size: 14px;
+    }
+}
+/*  TABLE  */
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table th {
+    background-color: #333;
+    color: white;
+}

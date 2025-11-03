@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Order{% endblock %}
+
+{% block content %}
+<h1>Create New Order</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Select Menu Items</h3>
+    <div>
+        {% for item in menu_items %}
+            <div class="menu-item">
+                <label>
+                    <input type="checkbox" name="menu_items" value="{{ item.id }}">
+                    {{ item.name }} - ${{ item.price }}
+                </label>
+                <input type="number" name="quantity_{{ item.id }}" min="1" value="1" class="form-control quantity-input">
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Place Order</button>
+</form>
+
+<a href="{% url 'order_list' %}" class="btn btn-secondary">Back to Order List</a>
+{% endblock %}

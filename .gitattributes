@@ -1,0 +1,13 @@
+# Normalize line endings
+* text=auto
+
+# Ensure Python files use LF
+*.py eol=lf
+
+# Requirements and config files
+*.txt eol=lf
+*.yml eol=lf
+*.sh eol=lf
+
+# Windows-specific files should keep CRLF
+*.bat eol=crlf

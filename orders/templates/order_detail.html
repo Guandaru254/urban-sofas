@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Detail{% endblock %}
+
+{% block content %}
+<h1>Order Detail</h1>
+
+<p><strong>Order ID:</strong> {{ order.id }}</p>
+<p><strong>Customer Name:</strong> {{ order.customer_name }}</p>
+<p><strong>Customer Phone:</strong> {{ order.customer_phone }}</p>
+<p><strong>Status:</strong> {{ order.status }}</p>
+<p><strong>Total Price:</strong> ${{ order.total_price }}</p>
+<p><strong>Created At:</strong> {{ order.created_at }}</p>
+
+<h2>Items:</h2>
+<ul>
+    {% for item in order.items.all %}
+        <li>{{ item.quantity }} x {{ item.menu_item.name }} (${{ item.menu_item.price }})</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'order_list' %}" class="btn btn-secondary">Back to Order List</a>
+{% endblock %}

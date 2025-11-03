@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Samaki Samaki{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 fw-bold">Checkout</h2>
+
+    {% if cart_items %}
+        <form method="POST" action="{% if order %}{% url 'create_order' order.id %}{% else %}#{% endif %}">
+            {% csrf_token %}
+            <div class="row">
+                <!-- Left: Delivery Info -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm p-4 mb-4">
+                        <h4 class="fw-bold">Delivery Information</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" id="first_name" name="first_name" class="form-control" 
+                                       value="{{ request.user.first_name }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" class="form-control" 
+                                       value="{{ request.user.last_name }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="delivery_address" class="form-label">Delivery Address</label>
+                            <textarea id="delivery_address" name="delivery_address" class="form-control" rows="2" required>{{ form.delivery_address.value|default_if_none:'' }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="delivery_city" class="form-label">City</label>
+                                <input type="text" id="delivery_city" name="delivery_city" class="form-control" 
+                                       value="{{ form.delivery_city.value|default_if_none:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="delivery_postal_code" class="form-label">Postal Code (Optional)</label>
+                                <input type="text" id="delivery_postal_code" name="delivery_postal_code" class="form-control" 
+                                       value="{{ form.delivery_postal_code.value|default_if_none:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="special_instructions" class="form-label">Special Instructions</label>
+                            <textarea id="special_instructions" name="special_instructions" class="form-control" rows="2">{{ form.special_instructions.value|default_if_none:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Order Summary -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm p-4">
+                        <h4 class="fw-bold">Order Summary</h4>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    {% for item in cart_items %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ item.item.name }}</strong>
+                                                <p class="text-muted small">KES {{ item.item.price }} x {{ item.quantity }}</p>
+                                            </td>
+                                            <td class="text-end fw-bold">KES {{ item.total_price }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <p class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>KES {{ subtotal|floatformat:2 }}</span>
+                        </p>
+                        <p class="d-flex justify-content-between">
+                            <span>Delivery Fee:</span>
+                            <span>KES {{ delivery_fee|floatformat:2 }}</span>
+                        </p>
+                        <hr>
+                        <h5 class="d-flex justify-content-between">
+                            <span>Total:</span>
+                            <span class="fw-bold text-primary">KES {{ total_price|floatformat:2 }}</span>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-lg mt-4 rounded-pill">Proceed to Payment</button>
+        </form>
+    {% else %}
+        <p class="text-center text-danger">Your cart is empty. Please add items before checking out.</p>
+    {% endif %}
+</div>
+{% endblock %}

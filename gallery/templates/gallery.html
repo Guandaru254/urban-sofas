@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gallery - Samaki Samaki{% endblock %}
+
+{% block meta_description %}Explore photos of our delicious seafood, vibrant jazz nights, and relaxing ambiance at Samaki Samaki, Kileleshwa.{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Style for breadcrumb background */
+    .breadcrumb-section.set-bg {
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        padding: 70px 0; /* Adjusted padding */
+        position: relative;
+        color: #fff; /* Ensure text is visible */
+    }
+    /* Optional overlay for text contrast */
+    .breadcrumb-section::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    }
+    .breadcrumb__text { position: relative; z-index: 1; }
+    .breadcrumb__text h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .breadcrumb__option a { color: #ccc; text-decoration: none; }
+    .breadcrumb__option a:hover { color: #fff; }
+    .breadcrumb__option span { color: #fff; }
+    .breadcrumb__option span::before { content: "/"; margin: 0 5px; color: #bbb; } /* Separator */
+
+    /* Gallery item style */
+    .gallery__item {
+        overflow: hidden; /* Keep image within rounded corners */
+        margin-bottom: 1.5rem; /* Add space between items */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        border-radius: 0.375rem; /* Bootstrap's default rounding */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+     .gallery__item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+     }
+    .gallery__item img {
+        display: block; /* Prevent extra space below image */
+        width: 100%;
+        height: 250px; /* Fixed height for uniformity */
+        object-fit: cover; /* Crop images nicely */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    {# Gallery Section #}
+    <section class="gallery py-5"> {# Use py-5 for padding #}
+        <div class="container">
+            {# Optional Intro Text #}
+            <div class="row text-center mb-5">
+                 <div class="col-lg-8 offset-lg-2">
+                     <h3 class="fw-semibold"></h3>
+                     <p class="lead text-muted small">Explore moments captured - from our delicious dishes to our vibrant atmosphere.</p>
+                 </div>
+            </div>
+
+            <div class="row g-4"> {# Use g-4 for gutters #}
+                <div class="col-lg-4 col-md-6 col-sm-6"> {# 3 columns on large, 2 on medium/small #}
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings13.jpg' %}" alt="Gallery Image 1" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings2.jpg' %}" alt="Gallery Image 2" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings4.jpg' %}" alt="Gallery Image 4" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings5.jpg' %}" alt="Gallery Image 5" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings6.jpg' %}" alt="Gallery Image 6" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings7.jpg' %}" alt="Gallery Image 7" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings8.jpg' %}" alt="Gallery Image 8" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings9.jpg' %}" alt="Gallery Image 9" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings10.jpg' %}" alt="Gallery Image 10" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings11.jpg' %}" alt="Gallery Image 11" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="gallery__item">
+                        <img src="{% static 'assets/images/kings12.jpg' %}" alt="Gallery Image 12" class="img-fluid rounded"> 
+                    </div>
+                </div>
+
+          
+            </div>
+        </div>
+    </section>
+    {# End Gallery Section #}
+{% endblock %}
+
+{% block extra_scripts %}
+{# Add JS for lightbox library here if you implement one later #}
+{# e.g., <script src="path/to/lightbox.min.js"></script> #}
+{# <script> lightbox.option({ /* options */ }) </script> #}
+{% endblock %}

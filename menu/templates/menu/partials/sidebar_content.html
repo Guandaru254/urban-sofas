@@ -1,0 +1,81 @@
+{% load static %}
+{# Load MPTT tags if using other mptt features; not strictly needed for get_children #}
+{# {% load mptt_tags %} #}
+
+<h5 class="text-lg-start mb-2 fw-bold pt-2">Categories</h5>
+<div class="list-group list-group-flush mb-4 category-accordion">
+
+    {# All Categories Link #}
+    <a href="{% url 'menu:menu_list' %}"
+        class="list-group-item list-group-item-action category-item border-0 py-2 fw-semibold {% if not selected_category_slug %}active{% endif %}" {# Make 'All' bold #}
+        aria-current="{% if not selected_category_slug %}page{% else %}false{% endif %}">
+        All Categories
+    </a>
+
+    {# Loop through all categories passed from view #}
+    {% for node in categories %}
+        {# Only process Top-Level Nodes (level 0) #}
+        {% if node.level == 0 %}
+            {# Get children for this top-level node #}
+            {% with children=node.get_children %}
+
+                {# Case 1: Top-level node HAS children -> Render collapse trigger and items #}
+                {% if children %}
+                    <a class="list-group-item list-group-item-action category-item border-0 py-2 d-flex justify-content-between align-items-center {% if selected_category_slug == node.slug %}active{% endif %}" {# Only active if THIS parent selected #}
+                        data-bs-toggle="collapse" href="#collapse-{{ node.slug }}" role="button"
+                        aria-expanded="false" aria-controls="collapse-{{ node.slug }}">
+                        {# Top-level parent name is bold #}
+                        <span class="category-name fw-semibold">{{ node.name }}</span>
+                        <i class="fas fa-chevron-down small opacity-50"></i> {# Toggle Icon #}
+                    </a>
+                    {# Collapsible div for children #}
+                    <div class="collapse list-group list-group-flush ps-3" id="collapse-{{ node.slug }}">
+                             {# Link for the parent category itself #}
+                             <a href="{% url 'menu:menu_list' %}?category={{ node.slug }}"
+                                 class="list-group-item list-group-item-action category-item border-0 py-1 {% if selected_category_slug == node.slug %}active{% endif %}">
+                                 {# Child items use small tag #}
+                                 <small>All {{ node.name }}</small>
+                             </a>
+                         {# Loop through children #}
+                         {% for child in children %}
+                             <a href="{% url 'menu:menu_list' %}?category={{ child.slug }}"
+                                 class="list-group-item list-group-item-action category-item border-0 py-1 {% if selected_category_slug == child.slug %}active fw-semibold{% endif %}"> {# Highlight child if selected #}
+                                 <small>{{ child.name }}</small> {# Child name smaller #}
+                             </a>
+                         {% endfor %}
+                    </div>
+
+                {# Case 2: Top-level node has NO children -> Render simple link #}
+                {% else %}
+                    <a href="{% url 'menu:menu_list' %}?category={{ node.slug }}"
+                       class="list-group-item list-group-item-action category-item border-0 py-2 {% if selected_category_slug == node.slug %}active{% endif %}">
+                        {# Top-level parent name is bold #}
+                        <span class="category-name fw-semibold">{{ node.name }}</span>
+                    </a>
+                {% endif %} {# End if children #}
+
+            {% endwith %} {# End with children #}
+        {% endif %} {# End if node.level == 0 #}
+    {% endfor %} {# End loop categories #}
+</div>
+<form method="GET" action="{% url 'menu:menu_list' %}" id="filter-form-content">
+    {# Hidden field to preserve sort order #}
+    {% if sort_by %}<input type="hidden" name="sort_by" value="{{ sort_by }}">{% endif %}
+    {# Hidden field for category #}
+    {% if selected_category_slug %}<input type="hidden" name="category" value="{{ selected_category_slug }}">{% endif %}
+
+    <div class="mb-4">
+        <h5 class="fw-semibold">Search</h5>
+        <input type="text" name="search" class="form-control rounded-pill" placeholder="Search Products..." value="{{ search_query|default:'' }}">
+    </div>
+
+    <div class="mb-4">
+        <h5 class="fw-semibold">Filter by Price</h5>
+        <input type="number" step="any" name="min_price" class="form-control rounded-pill mb-2" placeholder="Min Price (KES)" value="{{ min_price|default:'' }}">
+        <input type="number" step="any" name="max_price" class="form-control rounded-pill" placeholder="Max Price (KES)" value="{{ max_price|default:'' }}">
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2 w-100 rounded-pill">
+       <i class="fas fa-filter me-1"></i> Apply Filters
+    </button>
+</form>

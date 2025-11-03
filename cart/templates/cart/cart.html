@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Shopping Cart{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Custom styles for cart page */
+    .cart-item-card .card-body {
+        padding: 1rem; /* Adjust padding within card */
+    }
+    .cart-item-img {
+        max-width: 80px; /* Limit image width */
+        height: 80px;
+        object-fit: cover;
+    }
+    .cart-item-details h5 {
+        font-size: 1rem; /* Smaller item title */
+        font-weight: 600; /* Semibold */
+        margin-bottom: 0.25rem;
+    }
+    .cart-item-details .text-muted {
+        font-size: 0.85rem; /* Smaller unit price */
+    }
+    .qty-input {
+        max-width: 55px; /* Slightly narrower quantity input */
+        font-size: 0.9rem;
+    }
+    .qty-buttons .btn {
+        padding: 0.25rem 0.5rem; /* Smaller padding on +/- buttons */
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
+    .item-total {
+        font-size: 0.95rem; /* Slightly smaller item total */
+        font-weight: 600;
+        min-width: 90px;
+        text-align: right;
+    }
+    .remove-item-btn {
+         padding: 0.25rem 0.6rem; /* Adjust padding */
+         font-size: 0.8rem;
+    }
+    .order-summary-card h4 {
+        font-weight: 600;
+    }
+    .order-summary-card .summary-label {
+        color: #6c757d; /* Muted label */
+        font-size: 0.9rem;
+    }
+     .order-summary-card .summary-value {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+     .order-summary-card .summary-total h5 {
+         font-size: 1.1rem;
+     }
+     .order-summary-card .summary-total span {
+         font-weight: 700;
+     }
+
+    /* Ensure toast container styling is available if using toasts */
+    #toast-container { z-index: 1100 !important; /* Ensure toasts appear above other elements */ }
+
+</style>
+{# Add animate.css if using animations on toasts or elements #}
+{# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> #}
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 fw-bold display-6">🛒 Your Shopping Cart</h1> {# Slightly smaller main title #}
+
+    <div class="row">
+        {# Cart Items Section #}
+        <div class="col-lg-8 mb-4 mb-lg-0">
+            <div id="cart-items-list"> {# Container for items #}
+
+                {% for cart_item in cart_items %}
+                    {# Use Card structure for each item #}
+                    <div class="card shadow-sm mb-3 cart-item-card" id="cart-row-{{ cart_item.id }}">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+
+                                {# Image Column #}
+                                <div class="col-auto">
+                                    {% if cart_item.item.image %}
+                                        <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" class="rounded cart-item-img">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder_menu.png' %}" alt="Placeholder" class="rounded cart-item-img">
+                                    {% endif %}
+                                </div>
+
+                                {# Details Column #}
+                                <div class="col cart-item-details">
+                                    <h5 class="mb-1">{{ cart_item.item.name }}</h5>
+                                    <small class="text-muted">KES {{ cart_item.item.price }} / unit</small>
+                                </div>
+
+                                {# Actions Column #}
+                                <div class="col-md-auto mt-3 mt-md-0"> {# Stack actions on mobile #}
+                                    <div class="d-flex align-items-center justify-content-end justify-content-md-start">
+                                        {# Quantity Form #}
+                                        <form class="update-cart-form d-flex align-items-center me-3 qty-buttons"
+                                              data-item-id="{{ cart_item.item.id }}"
+                                              data-update-url="{% url 'cart:update_cart' item_id=cart_item.item.id %}"
+                                              onsubmit="return false;">
+                                            {% csrf_token %}
+                                            <button type="button" class="btn btn-outline-secondary btn-sm decrease-qty" aria-label="Decrease quantity">&minus;</button>
+                                            <input type="number" name="quantity" class="form-control text-center mx-1 qty-input" value="{{ cart_item.quantity }}" min="0" aria-label="Quantity for {{ cart_item.item.name }}">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm increase-qty" aria-label="Increase quantity">&plus;</button>
+                                        </form>
+
+                                        {# Item Total Price #}
+                                        <p class="fw-bold mb-0 me-3 item-total">KES {{ cart_item.total_price|floatformat:2 }}</p>
+
+                                        {# Remove Item Form #}
+                                        <form action="{% url 'cart:cart_remove' cart_item_id=cart_item.id %}" method="POST" class="d-inline remove-item-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm remove-item-btn" title="Remove item">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>{# /Actions Column #}
+
+                            </div></div></div>{% empty %}
+                    <div class="text-center py-5 bg-light rounded shadow-sm">
+                         <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <p class="text-center text-muted fs-5">Your cart is empty.</p>
+                        <a href="{% url 'menu:menu_list' %}" class="btn btn-primary rounded-pill px-4">Start Shopping</a>
+                    </div>
+                {% endfor %}
+            </div>{# /cart-items-list #}
+
+            {% if cart_items %}
+            <div class="text-end mt-3"> {# Aligned to end #}
+                <form action="{% url 'cart:clear_cart' %}" method="POST" class="d-inline clear-cart-form">
+                     {% csrf_token %}
+                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"> {# Smaller button #}
+                        <i class="fas fa-times me-1"></i> Clear Cart
+                     </button>
+                </form>
+            </div>
+            {% endif %}
+        </div><div class="col-lg-4">
+            <div class="card shadow-sm p-4 sticky-top order-summary-card" style="top: 100px;">
+                <h4 class="mb-3">Order Summary</h4>
+                <hr class="mt-0">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="summary-label">Subtotal:</span>
+                    <span class="summary-value" id="summary-subtotal">KES {{ subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="summary-label">Delivery Fee:</span>
+                    <span class="summary-value" id="summary-delivery">KES {{ delivery_fee|floatformat:2 }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3 summary-total">
+                    <h5 class="mb-0">Total:</h5>
+                    <span class="fw-bold text-primary fs-5" id="summary-total">KES {{ total_price|floatformat:2 }}</span>
+                </div>
+
+                <a href="{% url 'checkout:checkout' %}" class="btn btn-primary btn-lg w-100 mt-3 rounded-pill">Proceed to Checkout</a>
+            </div>
+        </div></div></div><div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+{# Keep jQuery if needed for AJAX, or rewrite AJAX with vanilla JS #}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    // --- Toast Function (Keep as before) ---
+    function showToast(message, type = "success") {
+        const toastId = 'toast-' + Date.now(); const toastTypeClass = `text-bg-${type}`;
+        const toastHtml = `<div id="${toastId}" class="toast align-items-center ${toastTypeClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000"><div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div>`;
+        let toastContainer = $('#toast-container'); if (!toastContainer.length) { $('body').append('<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>'); toastContainer = $('#toast-container'); } toastContainer.append(toastHtml);
+        const toastElement = new bootstrap.Toast(document.getElementById(toastId)); toastElement.show();
+    }
+
+    const csrftoken = '{{ csrf_token }}';
+
+    // --- Update Quantity AJAX Function (Keep as before) ---
+    function handleQuantityUpdate(menuItemId, newQuantity, updateUrl, rowElement) {
+        console.log(`Updating item ${menuItemId} to quantity ${newQuantity} via ${updateUrl}`);
+        $.ajax({
+            url: updateUrl, method: "POST", data: { quantity: newQuantity, csrfmiddlewaretoken: csrftoken, },
+            success: function (response) {
+                console.log(response); if (response.status === 'success') {
+                    if (response.removed) { $(rowElement).fadeOut(300, function() { $(this).remove(); updateSummary(response.subtotal, response.total_price); checkEmptyCart(); }); showToast("Item removed.", "warning"); }
+                    else { $(rowElement).find(".item-total").text(`KES ${response.item_total.toFixed(2)}`); updateSummary(response.subtotal, response.total_price); /* showToast("Cart updated."); */ }
+                    $('#cart-count-badge').text(response.cart_item_count).toggle(response.cart_item_count > 0);
+                } else { showToast(response.message || "Error updating.", "danger"); }
+            }, error: function (xhr) { let EM = "Error updating quantity."; if (xhr.responseJSON && xhr.responseJSON.message) { EM = xhr.responseJSON.message; } showToast(EM, "danger"); }
+        });
+    }
+
+    // --- Update Summary Function (Keep as before) ---
+    function updateSummary(subtotal, total_price) { $("#summary-subtotal").text(`KES ${subtotal.toFixed(2)}`); $("#summary-total").text(`KES ${total_price.toFixed(2)}`); }
+
+    // --- Check if Cart is Empty (New Function) ---
+     function checkEmptyCart() {
+         if ($('#cart-items-list').children('.cart-item-card').length === 0) {
+             $('#cart-items-list').html('<div class="text-center py-5 bg-light rounded shadow-sm"><i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i><p class="text-center text-muted fs-5">Your cart is empty.</p><a href="{% url "menu:menu_list" %}" class="btn btn-primary rounded-pill px-4">Start Shopping</a></div>');
+             $('.clear-cart-form').remove(); // Remove clear cart button
+         }
+     }
+
+    // --- Event Listeners ---
+    let debounceTimer;
+    // Use event delegation for inputs/buttons inside the list
+    $('#cart-items-list').on('change', '.qty-input', function() {
+        clearTimeout(debounceTimer);
+        const input = $(this);
+        // --- Updated selector for row element ---
+        const rowElement = input.closest(".cart-item-card"); // Find parent card
+        const form = input.closest(".update-cart-form");
+        const menuItemId = form.data("item-id"); // Get menu item id from form data
+        const updateUrl = form.data("update-url"); // Get url from form data
+        let newQuantity = parseInt(input.val());
+        if (isNaN(newQuantity) || newQuantity < 0) { newQuantity = 0; input.val(0); }
+        debounceTimer = setTimeout(() => { handleQuantityUpdate(menuItemId, newQuantity, updateUrl, rowElement); }, 500);
+    });
+
+    $('#cart-items-list').on('click', '.increase-qty, .decrease-qty', function() {
+        const button = $(this);
+        const form = button.closest(".update-cart-form");
+        const input = form.find(".qty-input");
+        let currentVal = parseInt(input.val()); let newVal = currentVal;
+        if (button.hasClass('increase-qty')) { newVal = currentVal + 1; }
+        else if (button.hasClass('decrease-qty')) { newVal = currentVal - 1; }
+        if (newVal >= 0) { input.val(newVal).trigger('change'); }
+    });
+
+    // Confirmation for Clear/Remove (Keep as before)
+    $('.clear-cart-form').on('submit', function(e){ if (!confirm('Remove all items from cart?')) { e.preventDefault(); } });
+    $('#cart-items-list').on('submit', '.remove-item-form', function(e){ if (!confirm('Remove this item from cart?')) { e.preventDefault(); } });
+
+});
+</script>
+{% endblock %}

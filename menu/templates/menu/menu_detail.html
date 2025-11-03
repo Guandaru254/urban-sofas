@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %} {# Load static tag #}
+
+{% block title %}{{ item.name }} - Menu Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {# == Main Product Details Row == #}
+    <div class="row align-items-center mb-5"> {# Added mb-5 for spacing #}
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card shadow-lg border-0 rounded-4">
+                {# Check if image exists, otherwise show placeholder #}
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" class="card-img-top rounded-4" alt="{{ item.name }}" style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;">
+                {% else %}
+                    <img src="{% static 'images/placeholder_detail.png' %}" class="card-img-top rounded-4" alt="Placeholder image for {{ item.name }}" style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="px-4 py-3 bg-white shadow-lg rounded-4">
+                <h1 class="fw-bold display-5">{{ item.name }}</h1>
+
+                {# Display Category and link back #}
+                {% if item.category %}
+                <p class="text-muted fs-5 mb-0">
+                    Category:
+                    <a href="{% url 'menu:menu_list' %}?category={{ item.category.slug }}" class="text-decoration-none link-secondary">
+                        {{ item.category.name }}
+                    </a>
+                </p>
+                {% endif %}
+
+                 {# Display Brand if available #}
+                 {% if item.brand %}
+                 <p class="text-muted small mt-1 mb-0">
+                     Brand: {{ item.brand.name }}
+                 </p>
+                 {% endif %}
+
+                {# Description #}
+                <p class="text-muted fs-5 mt-3">{{ item.description }}</p>
+                 {# Display other details if they exist #}
+                 <p class="text-muted small mt-3 mb-0">
+                    {% if item.volume_ml %}{{ item.volume_ml }}ml {% endif %}
+                    {% if item.abv %}| {{ item.abv }}% ABV{% endif %}
+                    {% if item.origin %}| Origin: {{ item.origin }}{% endif %}
+                </p>
+
+                {# Price #}
+                <p class="text-dark fw-bold fs-4 mt-4">Price: <span class="text-success">KES {{ item.price }}</span></p>
+
+                {# Buttons - Using a Form for Add to Cart #}
+                <div class="d-flex flex-wrap gap-3 mt-5">
+                    {# Add to Cart Form #}
+                    <form action="{% url 'cart:add_item' item_id=item.pk %}" method="POST" class="d-inline"> {# Use pk #}
+                         {% csrf_token %}
+                         <input type="hidden" name="quantity" value="1"> {# Default quantity #}
+                         <button type="submit" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm scale-on-click"> {# Adjusted padding #}
+                             <i class="fas fa-cart-plus me-2"></i>Add to Order
+                         </button>
+                     </form>
+
+                    {# Back Button #}
+                    <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm"> {# Adjusted padding #}
+                        <i class="fas fa-arrow-left me-1"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# === Related Items Section === #}
+    {% if related_items %}
+    <hr class="my-5">
+    <div class="related-items-section">
+        <h3 class="text-center mb-4 fw-semibold" style="font-size: 1.25rem;">  {# Smaller title size #}
+            {% if item.category %}
+                Other Items in {{ item.category.name }}
+            {% else %}
+                You Might Also Like
+            {% endif %}
+        </h3>
+        <div class="row justify-content-center">
+            {% for related_item in related_items %}
+            <div class="col-6 col-md-4 mb-4"> {# 2 on small, 3 on medium+ #}
+                <div class="card h-100 shadow-sm border-0 rounded-4 transform-hover">
+                    <a href="{% url 'menu:menu_detail' item_id=related_item.pk %}" class="text-decoration-none">
+                        {% if related_item.image %}
+                            <img src="{{ related_item.image.url }}" class="card-img-top rounded-4" alt="{{ related_item.name }}" style="height: 100%; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'images/placeholder_menu.png' %}" class="card-img-top rounded-4" alt="Placeholder" style="height: 100%; object-fit: cover;">
+                        {% endif %}
+                    </a>
+                    <div class="card-body text-center d-flex flex-column p-2">
+                        <h6 class="card-title fw-semibold mb-1">
+                            <a href="{% url 'menu:menu_detail' item_id=related_item.pk %}" class="text-decoration-none text-dark stretched-link">{{ related_item.name }}</a>
+                        </h6>
+                        {% if related_item.category %}
+                            <small class="text-muted mb-2 d-block" style="font-size: 0.8em;">{{ related_item.category.name }}</small>
+                        {% endif %}
+                        <p class="card-text text-success fw-bold fs-6 mt-auto">KES {{ related_item.price }}</p>
+
+                        {# Use same AJAX button structure as menu_list #}
+                        <button type="button"
+                                data-item-id="{{ related_item.pk }}"
+                                data-url="{% url 'cart:add_item' item_id=related_item.pk %}"
+                                class="btn btn-sm btn-dark rounded-pill scale-on-click w-75 mt-2 add-to-cart-btn mx-auto d-block"
+                                style="z-index: 2; position: relative;">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {# === End Related Items Section === #}
+
+</div> {# End .container py-5 #}
+{% endblock %} {# End block content #}
+
+
+{% block extra_scripts %}
+{# Include button click effect JS if not already in base.html #}
+<script>
+    document.querySelectorAll('.scale-on-click').forEach(btn => {
+        btn.addEventListener('mousedown', function() { btn.style.transform = 'scale(0.95)'; });
+        btn.addEventListener('mouseup', function() { btn.style.transform = 'scale(1)'; });
+        btn.addEventListener('mouseleave', function() { btn.style.transform = 'scale(1)'; });
+    });
+
+    // Ensure the AJAX add-to-cart function (getCookie, fetch logic) is available
+    // If it's not in base.html, you might need to include it here or in a shared static JS file
+    // Example placeholder - make sure the actual function is loaded
+    if (typeof getCookie !== 'function') {
+       function getCookie(name) { let cV = null; if (document.cookie && document.cookie !== '') { const cs = document.cookie.split(';'); for (let i = 0; i < cs.length; i++) { const c = cs[i].trim(); if (c.substring(0, name.length + 1) === (name + '=')) { cV = decodeURIComponent(c.substring(name.length + 1)); break; } } } return cV; }
+    }
+    const csrftoken_detail = getCookie('csrftoken') || document.querySelector('input[name=csrfmiddlewaretoken]')?.value;
+
+    document.querySelectorAll('.related-items-section .add-to-cart-btn').forEach(button => {
+         button.addEventListener('click', function(event) {
+            event.preventDefault(); event.stopPropagation();
+            const itemId = this.getAttribute('data-item-id');
+            const url = this.getAttribute('data-url');
+            if (!url || !csrftoken_detail) { console.error("Missing URL/CSRF for Related Item Add."); alert("Error."); return; }
+            console.log(`Adding related item ${itemId} via AJAX to ${url}`);
+            this.disabled = true; const originalText = this.textContent; this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrftoken_detail, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }})
+
+            .then(response => { if (!response.ok) { return response.json().then(errData => { throw new Error(errData.message || `HTTP error ${response.status}`); }).catch(() => { throw new Error(`HTTP error ${response.status}`); }); } return response.json(); })
+            .then(data => {
+                console.log('Success (Related):', data);
+                const cartCounter = document.getElementById('cart-count-badge');
+                if (cartCounter && data.cart_item_count !== undefined) {
+                    cartCounter.textContent = data.cart_item_count;
+                    cartCounter.classList.toggle('d-none', data.cart_item_count <= 0);
+                }
+                this.textContent = 'Added!';
+                setTimeout(() => { this.textContent = originalText; this.disabled = false; }, 1500);
+            }).catch((error) => {
+                console.error('Error adding related item:', error);
+                alert(`Could not add item: ${error.message || 'Please try again.'}`);
+                this.textContent = originalText; this.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - Samaki Samaki{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 fw-bold">Payment</h2>
+
+    <form method="POST" action="{% url 'payments:confirm_order' %}">
+        {% csrf_token %}
+        <div class="card shadow-sm p-4 mb-4">
+            <h4 class="fw-bold">Choose Payment Method</h4>
+            <hr>
+
+            <div class="d-flex justify-content-between">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="payment_method" id="mpesa" value="mpesa" checked>
+                    <label class="form-check-label fw-bold" for="mpesa">M-Pesa</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                    <label class="form-check-label fw-bold" for="card">Credit Card</label>
+                </div>
+            </div>
+
+            <!-- M-Pesa Input -->
+            <div id="mpesa-section" class="mt-3">
+                <label for="mpesa_phone" class="form-label">Phone Number (M-Pesa)</label>
+                <input type="tel" id="mpesa_phone" name="mpesa_phone" class="form-control" placeholder="e.g. 254712345678" required>
+                <small class="text-muted">Ensure the number is registered for M-Pesa.</small>
+            </div>
+
+            <!-- Card Payment Section (Initially Hidden) -->
+            <div id="card-section" class="mt-3 d-none">
+                <label for="card_number" class="form-label">Card Number</label>
+                <input type="text" id="card_number" name="card_number" class="form-control" placeholder="1234 5678 9012 3456">
+                
+                <label for="card_expiry" class="form-label mt-3">Expiry Date</label>
+                <input type="text" id="card_expiry" name="card_expiry" class="form-control" placeholder="MM/YY">
+
+                <label for="card_cvc" class="form-label mt-3">CVC</label>
+                <input type="text" id="card_cvc" name="card_cvc" class="form-control" placeholder="123">
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-lg mt-4 rounded-pill">Confirm and Pay</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function togglePaymentMethod(method) {
+        const mpesaSection = document.getElementById("mpesa-section");
+        const cardSection = document.getElementById("card-section");
+
+        if (method === 'mpesa') {
+            mpesaSection.classList.remove("d-none");
+            cardSection.classList.add("d-none");
+        } else if (method === 'card') {
+            mpesaSection.classList.add("d-none");
+            cardSection.classList.remove("d-none");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("mpesa").addEventListener("change", function () {
+            togglePaymentMethod('mpesa');
+        });
+        document.getElementById("card").addEventListener("change", function () {
+            togglePaymentMethod('card');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Profile{% endblock %} {# Made title more specific #}
+
+{% block content %}
+<div class="container mt-5">
+    {# Use user's username if first name isn't set #}
+    <h2 class="text-center mb-4">Welcome, {{ user.first_name|default:user.username }}!</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            Profile Details
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+            {# Access profile fields safely #}
+            <li class="list-group-item"><strong>Phone Number:</strong> {{ user.profile.phone_number|default:"Not set" }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ user.profile.address|default:"Not set" }}</li>
+             {# Add city and postal code if desired #}
+            <li class="list-group-item"><strong>City:</strong> {{ user.profile.city|default:"Not set" }}</li>
+            <li class="list-group-item"><strong>Postal Code:</strong> {{ user.profile.postal_code|default:"Not set" }}</li>
+        </ul>
+        <div class="card-body text-center">
+             {# *** UPDATED URL with namespace *** #}
+            <a href="{% url 'profiles:update_profile' %}" class="btn btn-warning">Update Profile</a>
+            {# Optional: Add link to change password #}
+            {# <a href="{% url 'users:password_change' %}" class="btn btn-secondary ms-2">Change Password</a> #}
+        </div>
+    </div>
+
+    {# Optional: Add section for Order History #}
+    {# <div class="mt-5"> #}
+    {#     <h3 class="text-center mb-3">Your Recent Orders</h3> #}
+    {#     #}
+    {#     <a href="{% url 'orders:order_list' %}" class="btn btn-info">View All Orders</a> #}
+    {# </div> #}
+
+</div>
+{% endblock %}

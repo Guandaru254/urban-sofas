@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Order List{% endblock %}
+
+{% block content %}
+<h1>Order List</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total Price</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.customer_name }}</td>
+                <td>{{ order.status }}</td>
+                <td>${{ order.total_price }}</td>
+                <td>{{ order.created_at }}</td>
+                <td>
+                    <a href="{% url 'order_detail' order.id %}">View</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'create_order' %}" class="btn btn-primary">Create New Order</a>
+{% endblock %}

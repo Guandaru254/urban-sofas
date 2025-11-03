@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Samaki Samaki{% endblock %}
+
+{% block content %}
+{# Includes styles needed for the form container and elements #}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+    /* Apply gradient background ONLY if base.html doesn't already have one */
+    /* Consider moving common styles like body background to a base CSS file */
+    body.login-page-body { /* Added class to scope body style */
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .login-container {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        max-width: 420px;
+        width: 90%;
+        text-align: center;
+        animation: fadeIn 0.6s ease-in-out;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .login-container h2 {
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block;
+        color: white;
+        font-size: 14px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: none;
+        padding: 14px;
+        font-size: 15px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        outline: none;
+        transition: 0.3s ease;
+        box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.2),
+                    inset -2px -2px 5px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box; /* Include padding in width */
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Styles for invalid form fields */
+    .form-control.is-invalid {
+        border: 1px solid #dc3545; /* Example red border for error */
+    }
+    .invalid-feedback {
+        color: #ffcccc; /* Lighter red for error text */
+        font-size: 0.85em;
+        margin-top: 4px;
+    }
+
+    /* Alert styles for messages framework */
+    .alert {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+        text-align: left;
+    }
+    .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+    .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+    .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+    .alert-warning { color: #856404; background-color: #fff3cd; border-color: #ffeeba; }
+
+
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        color: white;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #004494);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .forgot-password {
+        display: block;
+        margin-top: 10px;
+        color: white;
+        font-size: 14px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+        color: #cce5ff;
+    }
+
+    .register-link {
+        margin-top: 15px;
+        display: inline-block;
+        color: white;
+        font-weight: 500;
+        text-decoration: none;
+        transition: 0.3s;
+        font-size: 14px;
+    }
+
+    .register-link:hover {
+        text-decoration: underline;
+        color: #cce5ff;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 768px) {
+        .login-container { padding: 1.8rem; width: 92%; }
+        .form-control { font-size: 14px; padding: 12px; }
+        .btn-primary { font-size: 15px; padding: 12px; }
+    }
+</style>
+
+{# Add a class to body if needed, maybe via block extra_body_class in base.html #}
+{# <body class="login-page-body"> #}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;"> {# Adjusted min-height slightly #}
+    <div class="login-container">
+        <h2>Welcome Back</h2>
+
+        {# Display messages from Django messages framework (e.g., after logout) #}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} my-2" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {# Display non-field errors (e.g., "Invalid username or password") #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        {# Point form action to namespaced login URL #}
+        <form method="POST" action="{% url 'users:login' %}">
+            {% csrf_token %}
+            {# Use the 'next' context variable passed from the view #}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                {# Manually render field to add class and handle errors #}
+                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
+                       class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                       placeholder="Enter your username" required
+                       value="{{ form.username.value|default:'' }}"> {# Retain value on error #}
+                {# Display field-specific errors #}
+                {% if form.username.errors %}
+                    <div class="invalid-feedback d-block"> {# d-block to ensure visibility #}
+                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                {# Manually render field to add class and handle errors #}
+                 <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"
+                       class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                       placeholder="Enter your password" required>
+                {# Display field-specific errors #}
+                {% if form.password.errors %}
+                    <div class="invalid-feedback d-block"> {# d-block to ensure visibility #}
+                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-primary">Login</button>
+
+            {# Use namespaced URL for password reset #}
+            <a href="{% url 'users:password_reset' %}" class="forgot-password">Forgot password?</a>
+        </form>
+        {# Use namespaced URL for registration #}
+        <a href="{% url 'users:register' %}" class="register-link">Don't have an account? Register here</a>
+    </div>
+</div>
+
+{# Remove body tag closing if base.html already has it #}
+{# </body> #}
+{% endblock %}
