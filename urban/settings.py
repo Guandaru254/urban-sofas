@@ -114,9 +114,17 @@ if DJANGO_DEVELOPMENT:
     DATABASES = { "default": env.db_url('DATABASE_URL', default="postgres://user:pass@host:port/db") }
     DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=600)
 else:
-    # Production: Check for PROD_DATABASE_URL, then fallback to standard DATABASE_URL (Render default)
-    db_url = env('PROD_DATABASE_URL', default=env('DATABASE_URL'))
-    DATABASES = { "default": env.db_url(db_url) }
+    # PRODUCTION FIX: Retrieve the VALUE of the URL and pass it to the parser.
+    # The previous code passed the VALUE to a function expecting a KEY NAME, causing KeyError.
+    
+    # 1. Safely get the connection string VALUE from the environment
+    DATABASE_URL_VALUE = env.str('DATABASE_URL') 
+    
+    # 2. Pass the VALUE directly to the dj_database_url parser.
+    DATABASES = { 
+        "default": dj_database_url.parse(DATABASE_URL_VALUE)
+    }
+    
     DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=600)
     
     # *** CRITICAL RENDER FIX: SSL is REQUIRED for external Postgres connections ***
