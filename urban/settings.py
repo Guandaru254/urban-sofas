@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     'profiles',
     'checkout',
     'gallery',
-    'payments',
     'contact',
     'core',
     'stores',
@@ -175,7 +174,7 @@ SESSION_COOKIE_AGE = 3600
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-samakisamaki-cache',
+        'LOCATION': 'unique-urban-cache',
     }
 }
 

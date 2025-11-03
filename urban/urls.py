@@ -1,5 +1,3 @@
-# samakisamaki/samakisamaki/urls.py (Corrected Version)
-
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -24,7 +22,6 @@ urlpatterns = [
     path('profile/', include('profiles.urls', namespace='profiles')),
     path('checkout/', include('checkout.urls', namespace='checkout')),
     path('gallery/', include('gallery.urls', namespace='gallery')),
-    path('payments/', include('payments.urls', namespace='payments')),
     path('contact/', include('contact.urls', namespace='contact')),
     path('core/', include('core.urls', namespace='core')),
 

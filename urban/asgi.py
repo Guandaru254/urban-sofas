@@ -1,5 +1,5 @@
 """
-ASGI config for samakisamaki project.
+ASGI config for urban project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "samakisamaki.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "urban.settings")
 
 application = get_asgi_application()

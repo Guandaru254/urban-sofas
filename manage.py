@@ -7,7 +7,7 @@ import sys
 def main():
     """Run administrative tasks."""
     # Sets the default settings module for the 'django-admin' utility.
-    # Assumes your settings.py is inside a 'samakisamaki' directory
+    # Assumes your settings.py is inside a 'urban' directory
     # relative to this manage.py file.
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "urban.settings")
     try:
