@@ -66,7 +66,8 @@ INSTALLED_APPS = [
     'gallery',
     'contact',
     'core',
-    'stores',
+    'stores', 
+    'widget_tweaks',
 ]
 
 # --- MIDDLEWARE (WhiteNoise ADDED) ---
