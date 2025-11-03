@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     'gallery',
     'payments',
     'contact',
-    'widget_tweaks',
     'core',
     'stores',
 ]
