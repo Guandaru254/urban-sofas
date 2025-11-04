@@ -13,10 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- Load .env File ---
 try:
-    env_file_path = os.path.join(BASE_DIR, '.env')
-    environ.Env.read_env(env_file=env_file_path)
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 except FileNotFoundError:
-    print(f"DEBUG: .env not found, using OS environment variables")
+    print("DEBUG: .env not found, using OS environment variables")
 
 # --- Security ---
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key-if-not-in-env')
@@ -116,10 +115,12 @@ if DJANGO_DEVELOPMENT:
 else:
     DATABASE_URL_VALUE = env.str('DATABASE_URL')
     DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL_VALUE)
+        "default": dj_database_url.parse(
+            DATABASE_URL_VALUE,
+            conn_max_age=600,
+            ssl_require=False  # ✅ Fix Render SSL issue
+        )
     }
-    DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=600)
-    DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
 
 # --- Password Validation ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -146,7 +147,7 @@ STORAGES = {
     },
 }
 
-# --- Media Files (Local by default) ---
+# --- Media Files ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -190,13 +191,14 @@ else:
     EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
     EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-# --- Auto-create superuser on Render (only runs once) ---
-if os.environ.get('RENDER', None):  # Only run in Render environment
+
+# --- Auto-create superuser on Render ---
+if os.environ.get('RENDER', None):
     import django
     django.setup()
     from django.contrib.auth import get_user_model
-    User = get_user_model()
 
+    User = get_user_model()
     username = "admin"
     email = "admin@urban-sofas.com"
     password = "admin1234"
