@@ -1,4 +1,4 @@
-# settings.py - FINALIZED FOR LOCAL + RENDER DEPLOYMENT
+# settings.py - FINALIZED FOR LOCAL + RENDER DEPLOYMENT WITH CLOUDINARY
 
 import os
 from pathlib import Path
@@ -10,15 +10,13 @@ env = environ.Env()
 
 # --- BASE_DIR ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-print(f"DEBUG: BASE_DIR resolved to: {BASE_DIR}")
 
 # --- Load .env File ---
 try:
     env_file_path = os.path.join(BASE_DIR, '.env')
     environ.Env.read_env(env_file=env_file_path)
-    print(f"DEBUG: Loaded environment variables from: {env_file_path}")
 except FileNotFoundError:
-    print(f"DEBUG: Warning: .env file not found at {env_file_path}. Using OS env vars or defaults.")
+    print(f"DEBUG: .env not found, using OS environment variables")
 
 # --- Security ---
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key-if-not-in-env')
@@ -66,10 +64,17 @@ INSTALLED_APPS = [
     'widget_tweaks',
 ]
 
+# --- Add Cloudinary only in production ---
+if not DJANGO_DEVELOPMENT:
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
+
 # --- Middleware ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Static file compression
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -101,7 +106,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'urban.wsgi.application'
 
 # --- Database ---
-# Use PostgreSQL on Render, fallback to SQLite locally
 if DJANGO_DEVELOPMENT:
     DATABASES = {
         "default": env.db_url(
@@ -142,9 +146,19 @@ STORAGES = {
     },
 }
 
-# --- Media Files ---
+# --- Media Files (Local by default) ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# --- Cloudinary Storage (Render only) ---
+if not DJANGO_DEVELOPMENT:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+        'API_KEY': env('CLOUDINARY_API_KEY', default=''),
+        'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+    }
 
 # --- Default PK ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -176,3 +190,19 @@ else:
     EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
     EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+# --- Auto-create superuser on Render (only runs once) ---
+if os.environ.get('RENDER', None):  # Only run in Render environment
+    import django
+    django.setup()
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    username = "admin"
+    email = "admin@urban-sofas.com"
+    password = "admin1234"
+
+    if not User.objects.filter(username=username).exists():
+        print("Creating default superuser for Render deployment...")
+        User.objects.create_superuser(username=username, email=email, password=password)
+    else:
+        print("Superuser already exists. Skipping creation.")
