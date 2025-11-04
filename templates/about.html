@@ -3,122 +3,141 @@
 
 {% block title %}About Urban Sofas{% endblock %}
 
-{% block meta_description %}Learn about Urban Sofas, your source for high-quality, affordable sofas, beds, and dining sets in Nairobi. We offer reliable delivery and excellent customer service.{% endblock %}
+{% block meta_description %}
+Learn about Urban Sofas, your source for high-quality, affordable sofas, beds, and dining sets in Nairobi. We offer reliable delivery and excellent customer service.
+{% endblock %}
 
 {% block extra_head %}
 <style>
     .about-section { padding: 80px 0; }
-    .about-section h2 { font-weight: 700; margin-bottom: 1rem; color: #000000; }
-    .about-section .lead { max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 1.5rem; color: #495057; }
+    .about-section h2 { font-weight: 700; margin-bottom: 1rem; color: #000; }
+    .about-section .lead { max-width: 800px; margin: 0 auto 1.5rem; color: #495057; }
     .about-section p { line-height: 1.7; color: #495057; }
-    .about-section img { max-width: 100%; height: auto; }
-    hr.short-hr { width: 80px; border-top: 3px solid #000000; margin: 1.5rem auto; opacity: 1; }
-
-    /* The following styles override Bootstrap's default --bs-primary to black */
-    .btn-outline-primary {
-        --bs-btn-color: #000000;
-        --bs-btn-border-color: #000000;
-        --bs-btn-hover-color: #ffffff;
-        --bs-btn-hover-bg: #000000;
-        --bs-btn-hover-border-color: #000000;
-        --bs-btn-active-color: #ffffff;
-        --bs-btn-active-bg: #000000;
-        --bs-btn-active-border-color: #000000;
-        --bs-btn-disabled-color: #000000;
-        --bs-btn-disabled-border-color: #000000;
+    .about-section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     }
 
-    .bg-primary { background-color: #000000 !important; }
-    .text-primary { color: #000000 !important; }
-    .border-primary { border-color: #000000 !important; }
+    hr.short-hr {
+        width: 80px;
+        border-top: 3px solid #000;
+        margin: 1.5rem auto;
+        opacity: 1;
+    }
+
+    /* Buttons and theme */
+    .btn-outline-primary {
+        --bs-btn-color: #000;
+        --bs-btn-border-color: #000;
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: #000;
+        --bs-btn-hover-border-color: #000;
+    }
+
+    .bg-primary { background-color: #000 !important; }
+    .text-primary { color: #000 !important; }
 </style>
 {% endblock %}
-
 
 {% block content %}
 <div class="container-fluid px-0">
 
-    {# Section 0: Initial Intro Title #}
+    <!-- HERO INTRO -->
     <section class="text-center py-5 bg-white">
         <div class="container">
             <h1 class="display-5 fw-bold" data-aos="fade-down">About Urban Sofas</h1>
-            <p class="lead text-muted" data-aos="fade-up" data-aos-delay="100">Your Home for Quality and Affordable Furniture.</p>
+            <p class="lead text-muted" data-aos="fade-up" data-aos-delay="100">
+                Crafting comfort and style for modern living.
+            </p>
             <hr class="short-hr" data-aos="zoom-in" data-aos-delay="200">
         </div>
     </section>
 
-    {# Section 1: Our Story/Mission #}
-    <section class="about-section">
+    <!-- SECTION 1: IMAGE RIGHT -->
+    <section class="about-section bg-light">
         <div class="container">
-            <div class="row align-items-center">
-                   <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0" data-aos="fade-left">
-                       <img src="{% static 'assets/images/urban_sofas_showroom.jpg' %}" class="img-fluid rounded shadow-lg" alt="Urban Sofas Showroom">
-                   </div>
-                   <div class="col-lg-6 order-lg-1" data-aos="fade-right">
-                     <h2 class="h3 fw-semibold">Our Story</h2>
-                     <p>Urban Sofas was founded with a clear vision: to provide residents of Nairobi and its environs with convenient access to a wide selection of authentic, quality furniture at fair prices. We believe that everyone deserves to create a comfortable and stylish home without breaking the bank.</p>
-                     <p>From our showroom along Northern Bypass, we are dedicated to excellent customer service and reliable delivery, ensuring that you can find the perfect pieces to bring comfort and luxury right to your home.</p>
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h2 class="h3 fw-semibold">Our Story</h2>
+                    <p>Urban Sofas began with a mission: to make quality, locally crafted furniture accessible to everyone in Nairobi. We combine style, comfort, and affordability to help you create a home you truly love.</p>
+                    <p>From contemporary sofas to elegant dining sets, our products reflect a blend of Kenyan craftsmanship and modern design sensibility — built to last and impress.</p>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <img src="{% static 'assets/images/urban6.jpeg' %}" alt="Urban Sofas Showroom" class="img-fluid">
                 </div>
             </div>
         </div>
     </section>
 
-    {# Section 2: The Selection #}
-    <section class="about-section bg-light">
-        <div class="container">
-              <div class="row align-items-center g-4">
-                  <div class="col-md-6" data-aos="fade-right">
-                      <h2 class="h3 fw-semibold">Our Wide Selection</h2>
-                      <p>Explore our extensive catalogue featuring a diverse range of furniture to suit every style and budget. Our collection includes everything from modern L-shaped sofas and cozy love seats to elegant dining sets and sturdy beds.</p>
-                      <p>We source our materials carefully to ensure durability and comfort, providing you with furniture that not only looks great but also stands the test of time. Our range of coffee tables and accent chairs are perfect for adding the finishing touches to any room.</p>
-                      <div class="mt-4">
-                           <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-primary rounded-pill px-4 py-2">Browse All Products</a>
-                       </div>
-                  </div>
-                  <div class="col-md-6" data-aos="fade-left">
-                       <img src="{% static 'assets/images/urban_sofas_selection.jpg' %}" alt="Selection of furniture" class="img-fluid rounded shadow-lg">
-                  </div>
-              </div>
-        </div>
-    </section>
-
-    {# Section 3: Service & Expertise #}
+    <!-- SECTION 2: IMAGE LEFT -->
     <section class="about-section bg-white">
         <div class="container">
-              <div class="row align-items-center g-4">
-                  <div class="col-md-6 order-md-2" data-aos="fade-left">
-                      <h2 class="mb-3 h3 fw-semibold">Reliable Service</h2>
-                      <p>At Urban Sofas, we pride ourselves on more than just our selection. Our knowledgeable team is here to assist you, and our delivery network is designed for reliability, ensuring your order reaches you promptly and safely.</p>
-                      <p>We focus on providing a smooth and secure online shopping experience, from Browse to checkout and final delivery. We offer free delivery in Nairobi's key areas, making it even easier to bring your new furniture home.</p>
-                      <div class="mt-4">
-                           <a href="{% url 'contact:contact' %}" class="btn btn-outline-secondary rounded-pill px-4 py-2">Ask a Question</a>
-                      </div>
-                  </div>
-                  <div class="col-md-6 order-md-1" data-aos="fade-right">
-                       <img src="{% static 'assets/images/urban_sofas_delivery.jpg' %}" alt="Urban Sofas Delivery" class="img-fluid rounded shadow-lg">
-                  </div>
-              </div>
+            <div class="row align-items-center g-5 flex-row-reverse">
+                <div class="col-lg-6" data-aos="fade-left">
+                    <h2 class="h3 fw-semibold">Our Selection</h2>
+                    <p>Our curated range includes plush sectionals, versatile love seats, stylish dining sets, and premium beds. Each piece is selected for its design, comfort, and durability — ensuring it fits seamlessly into your home.</p>
+                    <p>We’re committed to helping you find furniture that reflects your lifestyle, whether you’re decorating a new space or upgrading your current one.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-primary rounded-pill px-4 py-2">
+                            Browse All Products
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-right">
+                    <img src="{% static 'assets/images/urban7.jpeg' %}" alt="Urban Sofas Selection" class="img-fluid">
+                </div>
+            </div>
         </div>
     </section>
 
-    {# Section 4: Visit or Order (Call to Action) #}
-    <section class="about-section bg-primary text-white">
-            <div class="container text-center">
-                <h2 class="mb-3 text-white">Ready to Order?</h2>
-                <p class="lead mb-4 col-lg-8 mx-auto">Browse our online store or contact us directly. We deliver countrywide with free delivery in Nairobi and its environs.</p>
-                <a href="{% url 'contact:contact' %}" class="btn btn-light rounded-pill me-2 mt-2 px-4 py-2">Contact & Locations</a>
-                <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-light rounded-pill mt-2 px-4 py-2">Shop Online Now</a>
+    <!-- SECTION 3: IMAGE LEFT AGAIN -->
+    <section class="about-section bg-light">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <img src="{% static 'assets/images/urban8.jpeg' %}" alt="Urban Sofas Delivery" class="img-fluid">
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <h2 class="h3 fw-semibold">Reliable Service</h2>
+                    <p>At Urban Sofas, we go beyond selling furniture — we offer a full experience built on trust and reliability. Our delivery team ensures fast, safe transportation to your home, while our customer service remains attentive every step of the way.</p>
+                    <p>We offer free delivery within Nairobi’s key areas and countrywide delivery options, bringing comfort straight to your doorstep.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'contact:contact' %}" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                            Ask a Question
+                        </a>
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="about-section bg-primary text-white text-center">
+        <div class="container">
+            <h2 class="mb-3 text-white">Ready to Order?</h2>
+            <p class="lead mb-4 col-lg-8 mx-auto">
+                Browse our online store or contact us directly. We deliver countrywide — with free delivery across Nairobi and its environs.
+            </p>
+            <a href="{% url 'contact:contact' %}" class="btn btn-light rounded-pill me-2 mt-2 px-4 py-2">
+                Contact & Locations
+            </a>
+            <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-light rounded-pill mt-2 px-4 py-2">
+                Shop Online Now
+            </a>
+        </div>
     </section>
 
 </div>
 {% endblock %}
 
-
 {% block extra_scripts %}
 <script>
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 800, once: true, offset: 100 });
-    } else { console.warn("AOS library not loaded - animations disabled."); }
+    } else {
+        console.warn("AOS not loaded - animations disabled.");
+    }
 </script>
 {% endblock %}
