@@ -105,7 +105,6 @@ WSGI_APPLICATION = "urban.wsgi.application"
 
 # --- Database ---
 if DJANGO_DEVELOPMENT:
-    # Local development
     DATABASES = {
         "default": env.db_url(
             "DATABASE_URL",
@@ -113,12 +112,11 @@ if DJANGO_DEVELOPMENT:
         )
     }
 else:
-    # Render production with SSL
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
             conn_max_age=600,
-            ssl_require=True  # ✅ Enforce SSL for Render PostgreSQL
+            ssl_require=True
         )
     }
 
@@ -136,28 +134,41 @@ TIME_ZONE = "Africa/Nairobi"
 USE_I18N = True
 USE_TZ = True
 
-# --- Static Files ---
+# --- Static & Media Files ---
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
-# --- Media Files ---
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# --- Cloudinary (Production only) ---
+# --- File Storage ---
 if not DJANGO_DEVELOPMENT:
+    # Production (Render)
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME", default=""),
         "API_KEY": env("CLOUDINARY_API_KEY", default=""),
         "API_SECRET": env("CLOUDINARY_API_SECRET", default=""),
+    }
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    # Local Development
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
     }
 
 # --- Defaults ---
