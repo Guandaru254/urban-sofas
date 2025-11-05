@@ -21,7 +21,11 @@ DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",
-    default=["http://localhost:8000", "http://127.0.0.1:8000"],
+    default=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://urban-sofas.onrender.com",
+    ],
 )
 
 # --- Security Toggles ---
@@ -65,8 +69,8 @@ if not DJANGO_DEVELOPMENT:
 # --- Middleware ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "core.middleware.db_reconnect.DBReconnectMiddleware",  # ✅ Auto reconnect middleware
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "core.middleware.db_reconnect.DBReconnectMiddleware",  # ✅ Auto DB reconnect
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # ✅ Static file optimization
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -109,12 +113,11 @@ else:
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
-            conn_max_age=300,  # ✅ balanced for Render (less idle timeouts)
+            conn_max_age=300,  # ✅ balanced for Render timeouts
             ssl_require=True,
         )
     }
-
-    # ✅ Health checks to auto-reconnect if DB sleeps
+    # ✅ Auto reconnect when idle or connection lost
     DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # --- Password Validation ---
@@ -151,14 +154,14 @@ if not DJANGO_DEVELOPMENT:
     STORAGES = {
         "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 else:
     STORAGES = {
         "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 
@@ -173,7 +176,7 @@ LOGOUT_REDIRECT_URL = "/"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"  # ✅ safer for Render
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"  # ✅ safer on Render
 
 # --- Cache ---
 CACHES = {
