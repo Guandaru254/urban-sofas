@@ -1,4 +1,4 @@
-# settings.py – FINAL RENDER-READY + AUTO DB RECONNECT + CLOUDINARY + WHITENOISE
+# settings.py – FINAL RENDER-READY + DB SESSION FIX + CLOUDINARY + WHITENOISE + AUTO DB RECONNECT
 
 import os
 from pathlib import Path
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "widget_tweaks",
 ]
 
+# --- Add Cloudinary only in production ---
 if not DJANGO_DEVELOPMENT:
     INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 
@@ -151,17 +152,18 @@ if not DJANGO_DEVELOPMENT:
     STORAGES = {
         "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         },
     }
 else:
     STORAGES = {
         "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         },
     }
 
+# --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- Authentication Redirects ---
@@ -170,10 +172,10 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 # --- Sessions ---
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # ✅ FIXED — persistent sessions
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 # --- Cache ---
 CACHES = {
