@@ -62,15 +62,14 @@ INSTALLED_APPS = [
     "widget_tweaks",
 ]
 
-# --- Add Cloudinary in production only ---
 if not DJANGO_DEVELOPMENT:
     INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 
 # --- Middleware ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "core.middleware.db_reconnect.DBReconnectMiddleware",  # ✅ Auto DB reconnect
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # ✅ Static file optimization
+    "core.middleware.db_reconnect.DBReconnectMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -113,11 +112,10 @@ else:
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
-            conn_max_age=300,  # ✅ balanced for Render timeouts
+            conn_max_age=300,
             ssl_require=True,
         )
     }
-    # ✅ Auto reconnect when idle or connection lost
     DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # --- Password Validation ---
@@ -150,7 +148,6 @@ if not DJANGO_DEVELOPMENT:
         "API_KEY": env("CLOUDINARY_API_KEY", default=""),
         "API_SECRET": env("CLOUDINARY_API_SECRET", default=""),
     }
-
     STORAGES = {
         "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
         "staticfiles": {
@@ -165,10 +162,10 @@ else:
         },
     }
 
-# --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- Authentication Redirects ---
+LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
@@ -176,7 +173,7 @@ LOGOUT_REDIRECT_URL = "/"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"  # ✅ safer on Render
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 # --- Cache ---
 CACHES = {
