@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout - Samaki Samaki{% endblock %}
+{% block title %}Checkout - Urban Sofas Kenya{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4 fw-bold">Checkout</h2>
 
     {% if cart_items %}
-        <form method="POST" action="{% if order %}{% url 'create_order' order.id %}{% else %}#{% endif %}">
+        <form id="checkoutForm" method="POST" action="#">
             {% csrf_token %}
             <div class="row">
                 <!-- Left: Delivery Info -->
@@ -91,10 +91,57 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 btn-lg mt-4 rounded-pill">Proceed to Payment</button>
+            <!-- ✅ WhatsApp Order Button -->
+            <button type="button" id="whatsappOrderBtn" class="btn btn-success w-100 btn-lg mt-4 rounded-pill">
+                <i class="fab fa-whatsapp"></i> Place Order via WhatsApp
+            </button>
         </form>
     {% else %}
         <p class="text-center text-danger">Your cart is empty. Please add items before checking out.</p>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById("whatsappOrderBtn").addEventListener("click", function() {
+    const firstName = document.getElementById("first_name").value.trim();
+    const lastName = document.getElementById("last_name").value.trim();
+    const address = document.getElementById("delivery_address").value.trim();
+    const city = document.getElementById("delivery_city").value.trim();
+    const postalCode = document.getElementById("delivery_postal_code").value.trim();
+    const instructions = document.getElementById("special_instructions").value.trim();
+
+    // Validate fields
+    if (!firstName || !lastName || !address || !city) {
+        alert("Please fill in all required delivery details before placing your order.");
+        return;
+    }
+
+    // Build WhatsApp message
+    let message = "Hello Urban Sofas Kenya,%0A%0AI'd like to place an order:%0A%0A";
+
+    {% for item in cart_items %}
+        message += "🛋️ {{ item.item.name }} - KES {{ item.item.price }} x {{ item.quantity }} = KES {{ item.total_price }}%0A";
+    {% endfor %}
+
+    message += "%0A---------------------------%0A";
+    message += "Subtotal: KES {{ subtotal|floatformat:2 }}%0A";
+    message += "Delivery Fee: KES {{ delivery_fee|floatformat:2 }}%0A";
+    message += "Total: *KES {{ total_price|floatformat:2 }}*%0A%0A";
+
+    message += "Delivery Details:%0A";
+    message += `Name: ${firstName} ${lastName}%0A`;
+    message += `Address: ${address}, ${city}%0A`;
+    if (postalCode) message += `Postal Code: ${postalCode}%0A`;
+    if (instructions) message += `Instructions: ${instructions}%0A`;
+    message += "%0AThank you! Please confirm availability and delivery time.";
+
+    // Your WhatsApp number
+    const phoneNumber = "254793595290"; // ✅ Replace with your WhatsApp business number
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+
+    window.open(whatsappUrl, "_blank");
+});
+</script>
 {% endblock %}
