@@ -1,4 +1,4 @@
-# settings.py - FINALIZED FOR LOCAL + RENDER DEPLOYMENT WITH CLOUDINARY & RENDER DB SSL FIX
+# settings.py – FINAL RENDER-READY + AUTO DB RECONNECT + CLOUDINARY + WHITENOISE
 
 import os
 from pathlib import Path
@@ -7,25 +7,21 @@ import environ
 
 # --- Initialize environment ---
 env = environ.Env()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- Load .env file (if exists locally) ---
-try:
-    environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-except FileNotFoundError:
-    print("DEBUG: .env not found, using OS environment variables")
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # --- Security ---
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
-DJANGO_DEVELOPMENT = env.bool('DJANGO_DEVELOPMENT', default=True)
-DEBUG = env.bool('DEBUG', default=True)
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-fallback-key")
+DJANGO_DEVELOPMENT = env.bool("DJANGO_DEVELOPMENT", default=True)
+DEBUG = env.bool("DEBUG", default=True)
 
 # --- Allowed Hosts & CSRF ---
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 CSRF_TRUSTED_ORIGINS = env.list(
-    'CSRF_TRUSTED_ORIGINS',
-    default=['http://localhost:8000', 'http://127.0.0.1:8000']
+    "CSRF_TRUSTED_ORIGINS",
+    default=["http://localhost:8000", "http://127.0.0.1:8000"],
 )
 
 # --- Security Toggles ---
@@ -64,14 +60,12 @@ INSTALLED_APPS = [
 
 # --- Add Cloudinary in production only ---
 if not DJANGO_DEVELOPMENT:
-    INSTALLED_APPS += [
-        "cloudinary",
-        "cloudinary_storage",
-    ]
+    INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 
 # --- Middleware ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "core.middleware.db_reconnect.DBReconnectMiddleware",  # ✅ Auto reconnect middleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -108,17 +102,20 @@ if DJANGO_DEVELOPMENT:
     DATABASES = {
         "default": env.db_url(
             "DATABASE_URL",
-            default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}"
+            default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
         )
     }
 else:
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
-            conn_max_age=600,
-            ssl_require=True
+            conn_max_age=300,  # ✅ balanced for Render (less idle timeouts)
+            ssl_require=True,
         )
     }
+
+    # ✅ Health checks to auto-reconnect if DB sleeps
+    DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # --- Password Validation ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -144,7 +141,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # --- File Storage ---
 if not DJANGO_DEVELOPMENT:
-    # Production (Render)
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME", default=""),
@@ -153,21 +149,16 @@ if not DJANGO_DEVELOPMENT:
     }
 
     STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
+        "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         },
     }
 else:
-    # Local Development
     STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         },
     }
 
@@ -182,6 +173,7 @@ LOGOUT_REDIRECT_URL = "/"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"  # ✅ safer for Render
 
 # --- Cache ---
 CACHES = {
