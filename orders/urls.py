@@ -3,7 +3,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'orders' # <-- ADD THIS LINE!
+app_name = 'orders' # <-- ADD THIS LINE!n
 
 urlpatterns = [
     # Maps to /orders/ (when included from main urls.py)

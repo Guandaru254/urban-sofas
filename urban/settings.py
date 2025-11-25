@@ -1,42 +1,28 @@
-# settings.py – FINAL RENDER-READY + DB SESSION FIX + CLOUDINARY + WHITENOISE + AUTO DB RECONNECT
-
 import os
 from pathlib import Path
 import dj_database_url
-import environ
 
-# --- Initialize environment ---
-env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- Load .env file (if exists locally) ---
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+SECRET_KEY = "your-very-secure-secret-key-here"
 
-# --- Security ---
-SECRET_KEY = env("SECRET_KEY", default="django-insecure-fallback-key")
-DJANGO_DEVELOPMENT = env.bool("DJANGO_DEVELOPMENT", default=True)
-DEBUG = env.bool("DEBUG", default=True)
+DEBUG = False    # Production ready
 
-# --- Allowed Hosts & CSRF ---
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
-CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "https://urban-sofas.onrender.com",
-    ],
-)
+# --- Allowed Hosts ---
+ALLOWED_HOSTS = [
+    "urbansofaskenya.com",
+    "www.urbansofaskenya.com",
+    "urban-sofas.onrender.com",
+    "127.0.0.1",
+    "localhost",
+]
 
-# --- Security Toggles ---
-if DEBUG:
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    SECURE_SSL_REDIRECT = False
-else:
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
+# --- CSRF ---
+CSRF_TRUSTED_ORIGINS = [
+    "https://urbansofaskenya.com",
+    "https://www.urbansofaskenya.com",
+    "https://urban-sofas.onrender.com",
+]
 
 # --- Installed Apps ---
 INSTALLED_APPS = [
@@ -60,11 +46,9 @@ INSTALLED_APPS = [
     "core",
     "stores",
     "widget_tweaks",
+    "cloudinary",
+    "cloudinary_storage",
 ]
-
-# --- Add Cloudinary only in production ---
-if not DJANGO_DEVELOPMENT:
-    INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 
 # --- Middleware ---
 MIDDLEWARE = [
@@ -79,7 +63,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# --- URL and Templates ---
 ROOT_URLCONF = "urban.urls"
 
 TEMPLATES = [
@@ -101,23 +84,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "urban.wsgi.application"
 
-# --- Database ---
-if DJANGO_DEVELOPMENT:
-    DATABASES = {
-        "default": env.db_url(
-            "DATABASE_URL",
-            default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
-        )
-    }
-else:
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=os.getenv("DATABASE_URL"),
-            conn_max_age=300,
-            ssl_require=True,
-        )
-    }
-    DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+# --- Database (Render Postgres) ---
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=300,
+        ssl_require=True,
+    )
+}
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # --- Password Validation ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -133,7 +108,7 @@ TIME_ZONE = "Africa/Nairobi"
 USE_I18N = True
 USE_TZ = True
 
-# --- Static & Media Files ---
+# --- Static & Media ---
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
@@ -141,38 +116,30 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# --- File Storage ---
-if not DJANGO_DEVELOPMENT:
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME", default=""),
-        "API_KEY": env("CLOUDINARY_API_KEY", default=""),
-        "API_SECRET": env("CLOUDINARY_API_SECRET", default=""),
-    }
-    STORAGES = {
-        "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        },
-    }
-else:
-    STORAGES = {
-        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        },
-    }
+# --- Cloudinary ---
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
+}
 
-# --- Defaults ---
+STORAGES = {
+    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- Authentication Redirects ---
+# --- Auth Redirects ---
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 # --- Sessions ---
-SESSION_ENGINE = "django.contrib.sessions.backends.db"  # ✅ FIXED — persistent sessions
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
@@ -181,22 +148,14 @@ SESSION_COOKIE_AGE = 3600
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-urban-cache",
+        "LOCATION": "urban-cache",
     }
 }
 
-# --- Email ---
-if DEBUG:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = env("EMAIL_HOST", default="smtp.example.com")
-    EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-    EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+# --- Emails ---
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# --- Auto-create superuser on Render ---
+# --- Auto-superuser on Render ---
 if os.environ.get("RENDER", None):
     import django
     django.setup()
@@ -209,6 +168,6 @@ if os.environ.get("RENDER", None):
 
     if not User.objects.filter(username=username).exists():
         print("Creating default superuser for Render deployment...")
-        User.objects.create_superuser(username=username, email=email, password=password)
+        User.objects.create_superuser(username, email, password)
     else:
-        print("Superuser already exists. Skipping creation.")
+        print("Superuser already exists.")
