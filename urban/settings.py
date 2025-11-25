@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "your-very-secure-secret-key-here"
 
-DEBUG = False    # Production ready
+DEBUG = True    # Production ready
 
 # --- Allowed Hosts ---
 ALLOWED_HOSTS = [
